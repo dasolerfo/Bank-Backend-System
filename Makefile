@@ -15,6 +15,7 @@ migratedown:
 
 sqlc:
 	sqlc generate
-.PHONY: createdb dropdb postgres migrateup migratedown
+	
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc
 
 
