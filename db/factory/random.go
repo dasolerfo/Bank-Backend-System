@@ -30,13 +30,13 @@ func RandomString(n int) string {
 }
 
 // RandomOwner generates a random owner name
-func RandomOwner() int {
+func RandomOwner() int64 {
 	return 1 //RandomString(4 + rand.Intn(10))
 }
 
 // RandomMoney generates a random money value from 0 to 1000
-func RandomMoney() int64 {
-	return RandomInt(0, 1000)
+func RandomMoney() float64 {
+	return float64(RandomInt(0, 1000))
 }
 
 // RandomCurrency returns a random value between these "EUR", "USD", "KRW", "JPY" currencies

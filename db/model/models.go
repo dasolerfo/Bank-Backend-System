@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -74,8 +73,8 @@ type Account struct {
 }
 
 type Entry struct {
-	ID        int64         `json:"id"`
-	AccountID sql.NullInt64 `json:"account_id"`
+	ID        int64 `json:"id"`
+	AccountID int64 `json:"account_id"`
 	// Can be negative or positive
 	Amount    float64   `json:"amount"`
 	CreatedAt time.Time `json:"created_at"`
