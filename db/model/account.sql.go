@@ -9,6 +9,32 @@ import (
 	"context"
 )
 
+const addAccountBalance = `-- name: AddAccountBalance :one
+UPDATE accounts
+SET money = money + $1
+WHERE id = $2
+RETURNING id, owner_id, currency, created_at, money, country_code
+`
+
+type AddAccountBalanceParams struct {
+	Amount float64 `json:"amount"`
+	ID     int64   `json:"id"`
+}
+
+func (q *Queries) AddAccountBalance(ctx context.Context, arg AddAccountBalanceParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, addAccountBalance, arg.Amount, arg.ID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.Money,
+		&i.CountryCode,
+	)
+	return i, err
+}
+
 const createAccount = `-- name: CreateAccount :one
 INSERT INTO accounts (
   "owner_id",
@@ -63,6 +89,25 @@ WHERE id = $1 LIMIT 1
 
 func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getAccount, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.Money,
+		&i.CountryCode,
+	)
+	return i, err
+}
+
+const getAccountForUpdate = `-- name: GetAccountForUpdate :one
+SELECT id, owner_id, currency, created_at, money, country_code FROM accounts
+WHERE id = $1 LIMIT 1 FOR NO KEY UPDATE
+`
+
+func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountForUpdate, id)
 	var i Account
 	err := row.Scan(
 		&i.ID,
