@@ -121,3 +121,62 @@ func TestTransferTx(t *testing.T) {
 
 	fmt.Println(">> after trx: ", updatedAccount1.Money, updatedAccount2.Money)
 }
+
+func TestTransferTxDeadlocks(t *testing.T) {
+	store := NewStore(testDB)
+
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
+
+	fmt.Println(">> before trx: ", account1.Money, account2.Money)
+
+	//run x concurrent transfer transictions
+	x := 10
+	amount := float64(10)
+
+	errs := make(chan error)
+	//results := make(chan TransferTxResult)
+
+	for i := 0; i < x; i++ {
+		txName := fmt.Sprintf("tx %d", i+1)
+		go func() {
+			ctx := context.WithValue(context.Background(), txKey, txName)
+			var accountID1, accountID2 int64
+			if i%2 == 0 {
+				accountID1 = account1.ID
+				accountID2 = account2.ID
+			} else {
+				accountID1 = account2.ID
+				accountID2 = account1.ID
+			}
+			_, err := store.TransferTx(ctx, TransferTxParams{
+				FromAccountID: accountID1,
+				ToAccountID:   accountID2,
+				Amount:        amount,
+			})
+
+			errs <- err
+		}()
+
+	}
+
+	//existed := make(map[int]bool)
+
+	for i := 0; i < x; i++ {
+		err := <-errs
+		require.NoError(t, err)
+
+	}
+
+	updatedAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
+	require.NoError(t, err)
+
+	fmt.Println(">> diners", account1.Money, " x:", x, " amount:", amount)
+	require.Equal(t, account1.Money, updatedAccount1.Money)
+
+	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
+	require.NoError(t, err)
+	require.Equal(t, account2.Money, updatedAccount2.Money)
+
+	fmt.Println(">> after trx: ", updatedAccount1.Money, updatedAccount2.Money)
+}
