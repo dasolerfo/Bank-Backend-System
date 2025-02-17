@@ -18,7 +18,7 @@ func TestTransferTx(t *testing.T) {
 
 	//run x concurrent transfer transictions
 	x := 5
-	amount := float64(10)
+	amount := int64(10)
 
 	errs := make(chan error)
 	results := make(chan TransferTxResult)
@@ -113,11 +113,11 @@ func TestTransferTx(t *testing.T) {
 	require.NoError(t, err)
 
 	fmt.Println(">> diners", account1.Money, " x:", x, " amount:", amount)
-	require.Equal(t, account1.Money-(float64(x)*amount), updatedAccount1.Money)
+	require.Equal(t, account1.Money-(int64(x)*amount), updatedAccount1.Money)
 
 	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
-	require.Equal(t, account2.Money+(float64(x)*amount), updatedAccount2.Money)
+	require.Equal(t, account2.Money+(int64(x)*amount), updatedAccount2.Money)
 
 	fmt.Println(">> after trx: ", updatedAccount1.Money, updatedAccount2.Money)
 }
@@ -132,7 +132,7 @@ func TestTransferTxDeadlocks(t *testing.T) {
 
 	//run x concurrent transfer transictions
 	x := 10
-	amount := float64(10)
+	amount := int64(10)
 
 	errs := make(chan error)
 	//results := make(chan TransferTxResult)

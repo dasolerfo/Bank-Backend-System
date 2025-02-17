@@ -19,14 +19,14 @@ CREATE TABLE "accounts" (
   "owner_id" BIGSERIAL NOT NULL,
   "currency" "Currency" NOT NULL,
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW()) ,
-  "money" FLOAT NOT NULL,
+  "money" BIGINT NOT NULL,
   "country_code" INT NOT NULL
 );
 
 CREATE TABLE "entries" (
   "id" BIGSERIAL PRIMARY KEY,
   "account_id" BIGSERIAL NOT NULL,
-  "amount" FLOAT NOT NULL,
+  "amount" BIGINT NOT NULL,
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW()) 
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE "transfers" (
   "id" BIGSERIAL PRIMARY KEY,
   "from_account_id" BIGSERIAL NOT NULL,
   "to_account_id" BIGSERIAL NOT NULL,
-  "amount" FLOAT NOT NULL,
+  "amount" BIGINT NOT NULL,
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT (NOW()) 
 );
 

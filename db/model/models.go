@@ -68,7 +68,7 @@ type Account struct {
 	OwnerID     int64     `json:"owner_id"`
 	Currency    Currency  `json:"currency"`
 	CreatedAt   time.Time `json:"created_at"`
-	Money       float64   `json:"money"`
+	Money       int64     `json:"money"`
 	CountryCode int32     `json:"country_code"`
 }
 
@@ -76,7 +76,7 @@ type Entry struct {
 	ID        int64 `json:"id"`
 	AccountID int64 `json:"account_id"`
 	// Can be negative or positive
-	Amount    float64   `json:"amount"`
+	Amount    int64     `json:"amount"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -94,6 +94,6 @@ type Transfer struct {
 	FromAccountID int64 `json:"from_account_id"`
 	ToAccountID   int64 `json:"to_account_id"`
 	// Must be positive
-	Amount    float64   `json:"amount"`
+	Amount    int64     `json:"amount"`
 	CreatedAt time.Time `json:"created_at"`
 }

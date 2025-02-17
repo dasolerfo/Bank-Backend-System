@@ -35,8 +35,8 @@ func RandomOwner() int64 {
 }
 
 // RandomMoney generates a random money value from 0 to 1000
-func RandomMoney() float64 {
-	return float64(RandomInt(0, 1000))
+func RandomMoney() int64 {
+	return (RandomInt(0, 1000))
 }
 
 // RandomCurrency returns a random value between these "EUR", "USD", "KRW", "JPY" currencies

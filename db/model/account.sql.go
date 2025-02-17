@@ -17,8 +17,8 @@ RETURNING id, owner_id, currency, created_at, money, country_code
 `
 
 type AddAccountBalanceParams struct {
-	Amount float64 `json:"amount"`
-	ID     int64   `json:"id"`
+	Amount int64 `json:"amount"`
+	ID     int64 `json:"id"`
 }
 
 func (q *Queries) AddAccountBalance(ctx context.Context, arg AddAccountBalanceParams) (Account, error) {
@@ -49,7 +49,7 @@ INSERT INTO accounts (
 type CreateAccountParams struct {
 	OwnerID     int64    `json:"owner_id"`
 	Currency    Currency `json:"currency"`
-	Money       float64  `json:"money"`
+	Money       int64    `json:"money"`
 	CountryCode int32    `json:"country_code"`
 }
 
@@ -170,8 +170,8 @@ RETURNING id, owner_id, currency, created_at, money, country_code
 `
 
 type UpdateAccountParams struct {
-	ID    int64   `json:"id"`
-	Money float64 `json:"money"`
+	ID    int64 `json:"id"`
+	Money int64 `json:"money"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {

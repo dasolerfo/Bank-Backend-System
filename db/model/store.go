@@ -37,9 +37,9 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 }
 
 type TransferTxParams struct {
-	FromAccountID int64   `json:"from_account_id"`
-	ToAccountID   int64   `json:"to_account_id"`
-	Amount        float64 `json:"amount"`
+	FromAccountID int64 `json:"from_account_id"`
+	ToAccountID   int64 `json:"to_account_id"`
+	Amount        int64 `json:"amount"`
 }
 
 type TransferTxResult struct {
@@ -99,7 +99,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 		if arg.FromAccountID < arg.ToAccountID {
 
-			result.ToAccount, result.FromAccount, err = transferMoney(ctx, arg.FromAccountID, arg.ToAccountID, -arg.Amount, arg.Amount, q)
+			result.FromAccount, result.ToAccount, err = transferMoney(ctx, arg.FromAccountID, arg.ToAccountID, -arg.Amount, arg.Amount, q)
 
 			if err != nil {
 				return err
@@ -122,8 +122,8 @@ func transferMoney(
 	ctx context.Context,
 	accountID1 int64,
 	accountID2 int64,
-	amount1 float64,
-	amount2 float64,
+	amount1 int64,
+	amount2 int64,
 	q *Queries) (account1 Account, account2 Account, err error) {
 
 	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
