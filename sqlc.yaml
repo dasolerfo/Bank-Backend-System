@@ -11,3 +11,4 @@ sql:
         emit_exact_table_names: false
         emit_json_tags: true
         emit_all_enum_values: true
+        emit_empty_slices: true

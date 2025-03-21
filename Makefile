@@ -18,13 +18,18 @@ migratedown:
 sqlc:
 	sqlc generate
 
+upgradesqlc:
+	brew upgrade sqlc
+
 test: 
 	go test -v -cover ./...
+
+
 
 serve: 
 	go run main.go
 	
 	
-.PHONY: createdb startDB dropdb postgres migrateup migratedown sqlc test serve
+.PHONY: createdb startDB dropdb postgres migrateup migratedown sqlc test serve upgradesqlc
 
 
