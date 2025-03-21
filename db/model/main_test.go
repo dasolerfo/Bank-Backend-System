@@ -4,14 +4,10 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"simplebank/factory"
 	"testing"
 
 	_ "github.com/lib/pq"
-)
-
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:Songoku13@localhost:5432/simple_bank?sslmode=disable"
 )
 
 var testQueries *Queries
@@ -19,7 +15,12 @@ var testDB *sql.DB
 
 func TestMain(m *testing.M) {
 	var err error
-	testDB, err = sql.Open(dbDriver, dbSource)
+
+	config, err := factory.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("Error! No s'ha pogut carregar el .env", err)
+	}
+	testDB, err = sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("Error! No et pots connectar a la base de dades: ", err)
 	}

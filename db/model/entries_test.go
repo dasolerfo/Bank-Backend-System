@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"simplebank/db/factory"
+	"simplebank/factory"
 
 	"testing"
 
