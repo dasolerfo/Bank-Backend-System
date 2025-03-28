@@ -24,7 +24,8 @@ upgradesqlc:
 test: 
 	go test -v -cover ./...
 
-
+mockgen:
+	mockgen -package mockdb -destination db/mock/store.go ./db/model Store
 
 serve: 
 	go run main.go
