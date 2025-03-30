@@ -8,7 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// BUSCAR A GO-PLAYGROUND/VALIDATOR
+// IMPORTANT!!!!
+
+// CERCAR A GO-PLAYGROUND/VALIDATOR
 
 type createAccountRequest struct {
 	OwnerID     int64       `json:"owner_id" binding:"required"`
