@@ -60,8 +60,3 @@ ALTER TABLE "transfers" ADD CONSTRAINT "fk_from_account" FOREIGN KEY ("from_acco
 
 ALTER TABLE "transfers" ADD CONSTRAINT "fk_to_account" FOREIGN KEY ("to_account_id") REFERENCES "accounts" ("id") ON DELETE CASCADE;
 
-INSERT INTO owners (first_name, first_surname, second_surname, nationality) VALUES ('Daniel', 'Soler', 'Fontanet', 34); 
-
-INSERT INTO owners (first_name, first_surname, second_surname, nationality) VALUES ('Mar', 'Soler', 'Fontanet', 34); 
-
-INSERT INTO owners (first_name, first_surname, second_surname, nationality) VALUES ('Roger', 'Metaute', 'Perez', 34); 
