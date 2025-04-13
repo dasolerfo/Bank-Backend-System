@@ -11,7 +11,7 @@ type argTransferParamsAPI struct {
 	FromAccountID int64       `json:"from_account_id" binding:"required,min=1"`
 	ToAccountID   int64       `json:"to_account_id" binding:"required,min=1"`
 	Amount        int64       `json:"amount" binding:"required,min=1"`
-	Currency      db.Currency `json:"currency" binding:"required,oneof=USD EUR JPY KRW"`
+	Currency      db.Currency `json:"currency" binding:"required,currency"`
 }
 
 func (s *Server) createTransferMoneyAPI(ctx *gin.Context) {
@@ -20,6 +20,32 @@ func (s *Server) createTransferMoneyAPI(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
+	}
+
+	/*fromAccount, err := s.store.GetAccount(ctx, req.FromAccountID)
+	if err != nil {
+		ctx.JSON(http.StatusNoContent, errorResponse(err))
+		return
+	}
+
+	toAccount, err := s.store.GetAccount(ctx, req.ToAccountID)
+	if err != nil {
+		ctx.JSON(http.StatusNoContent, errorResponse(err))
+		return
+	}*/
+
+	fromAccount, val := s.validateAccounts(ctx, req.Currency, req.FromAccountID)
+	if !val {
+		return
+	}
+
+	_, val = s.validateAccounts(ctx, req.Currency, req.FromAccountID)
+	if !val {
+		return
+	}
+
+	if fromAccount.Money <= req.Amount {
+		ctx.JSON(http.StatusUnprocessableEntity, "Error: No disposes de suficients diners per realitzar la transferencia")
 	}
 
 	args := db.TransferTxParams{
@@ -36,5 +62,24 @@ func (s *Server) createTransferMoneyAPI(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, transfer)
+
+}
+
+func (s *Server) validateAccounts(ctx *gin.Context, currency db.Currency, accountID int64) (account db.Account, val bool) {
+
+	account, err := s.store.GetAccount(ctx, accountID)
+	if err != nil {
+		ctx.JSON(http.StatusNoContent, errorResponse(err))
+		val = false
+		return
+	}
+
+	if account.Currency != currency {
+		ctx.JSON(http.StatusUnprocessableEntity, "Error: Les divises no coincideixen")
+		val = false
+		return
+	}
+
+	return account, true
 
 }

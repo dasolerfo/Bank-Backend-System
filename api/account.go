@@ -14,7 +14,7 @@ import (
 
 type createAccountRequest struct {
 	OwnerID     int64       `json:"owner_id" binding:"required"`
-	Currency    db.Currency `json:"currency" binding:"required,oneof=USD EUR JPY KRW"`
+	Currency    db.Currency `json:"currency" binding:"required,currency"`
 	CountryCode int32       `json:"country_code" binding:"required"`
 }
 
