@@ -4,7 +4,13 @@ INSERT INTO owners (
   "first_surname",
   "second_surname",
   "born_at",
-  "nationality"
+  "nationality",
+  "hashed_password",
+  "email"
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
+
+-- name: GetOwner :one
+SELECT * FROM owners
+WHERE id = $1 LIMIT 1;

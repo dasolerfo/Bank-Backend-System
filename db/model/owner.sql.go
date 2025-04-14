@@ -16,18 +16,22 @@ INSERT INTO owners (
   "first_surname",
   "second_surname",
   "born_at",
-  "nationality"
+  "nationality",
+  "hashed_password",
+  "email"
 ) VALUES (
-    $1, $2, $3, $4, $5
-) RETURNING id, first_name, first_surname, second_surname, born_at, nationality
+    $1, $2, $3, $4, $5, $6, $7
+) RETURNING id, first_name, first_surname, second_surname, born_at, nationality, hashed_password, email, created_at, password_changed_at
 `
 
 type CreateOwnerParams struct {
-	FirstName     string    `json:"first_name"`
-	FirstSurname  string    `json:"first_surname"`
-	SecondSurname string    `json:"second_surname"`
-	BornAt        time.Time `json:"born_at"`
-	Nationality   int32     `json:"nationality"`
+	FirstName      string    `json:"first_name"`
+	FirstSurname   string    `json:"first_surname"`
+	SecondSurname  string    `json:"second_surname"`
+	BornAt         time.Time `json:"born_at"`
+	Nationality    int32     `json:"nationality"`
+	HashedPassword string    `json:"hashed_password"`
+	Email          string    `json:"email"`
 }
 
 func (q *Queries) CreateOwner(ctx context.Context, arg CreateOwnerParams) (Owner, error) {
@@ -37,6 +41,8 @@ func (q *Queries) CreateOwner(ctx context.Context, arg CreateOwnerParams) (Owner
 		arg.SecondSurname,
 		arg.BornAt,
 		arg.Nationality,
+		arg.HashedPassword,
+		arg.Email,
 	)
 	var i Owner
 	err := row.Scan(
@@ -46,6 +52,33 @@ func (q *Queries) CreateOwner(ctx context.Context, arg CreateOwnerParams) (Owner
 		&i.SecondSurname,
 		&i.BornAt,
 		&i.Nationality,
+		&i.HashedPassword,
+		&i.Email,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
+	)
+	return i, err
+}
+
+const getOwner = `-- name: GetOwner :one
+SELECT id, first_name, first_surname, second_surname, born_at, nationality, hashed_password, email, created_at, password_changed_at FROM owners
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetOwner(ctx context.Context, id int64) (Owner, error) {
+	row := q.db.QueryRowContext(ctx, getOwner, id)
+	var i Owner
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.FirstSurname,
+		&i.SecondSurname,
+		&i.BornAt,
+		&i.Nationality,
+		&i.HashedPassword,
+		&i.Email,
+		&i.CreatedAt,
+		&i.PasswordChangedAt,
 	)
 	return i, err
 }

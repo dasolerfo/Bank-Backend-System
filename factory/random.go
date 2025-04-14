@@ -29,6 +29,13 @@ func RandomString(n int) string {
 	return sb.String()
 }
 
+// RandomEmail Creates a random email
+func RandomEmail() string {
+	user := RandomString(int(RandomInt(5, 8)))
+	return user + "@gmail.com"
+
+}
+
 // RandomOwner generates a random owner name
 func RandomOwner() int64 {
 	return 1 //RandomString(4 + rand.Intn(10))

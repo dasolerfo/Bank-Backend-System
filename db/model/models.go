@@ -81,12 +81,16 @@ type Entry struct {
 }
 
 type Owner struct {
-	ID            int64     `json:"id"`
-	FirstName     string    `json:"first_name"`
-	FirstSurname  string    `json:"first_surname"`
-	SecondSurname string    `json:"second_surname"`
-	BornAt        time.Time `json:"born_at"`
-	Nationality   int32     `json:"nationality"`
+	ID                int64     `json:"id"`
+	FirstName         string    `json:"first_name"`
+	FirstSurname      string    `json:"first_surname"`
+	SecondSurname     string    `json:"second_surname"`
+	BornAt            time.Time `json:"born_at"`
+	Nationality       int32     `json:"nationality"`
+	HashedPassword    string    `json:"hashed_password"`
+	Email             string    `json:"email"`
+	CreatedAt         time.Time `json:"created_at"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
 }
 
 type Transfer struct {
