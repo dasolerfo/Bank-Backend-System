@@ -11,13 +11,18 @@ import (
 
 func createRandomOwner(t *testing.T) Owner {
 
+	hashPass, err := factory.HashPassword(factory.RandomString(8))
+
+	require.NoError(t, err)
+	require.NotEmpty(t, hashPass)
+
 	args := CreateOwnerParams{
 		FirstName:      factory.RandomString(7),
 		FirstSurname:   factory.RandomString(7),
 		SecondSurname:  factory.RandomString(8),
 		BornAt:         time.Now(),
 		Nationality:    int32(factory.RandomInt(1, 99)),
-		HashedPassword: "EsUnSecreto",
+		HashedPassword: hashPass,
 		Email:          factory.RandomEmail(),
 	}
 
