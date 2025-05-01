@@ -1,9 +1,11 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	db "simplebank/db/model"
 	"simplebank/factory"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -14,16 +16,18 @@ type createOwnerRequest struct {
 	FirstSurname  string `json:"first_surname" binding:"required"`
 	SecondSurname string `json:"second_surname" binding:"required"`
 	Nationality   int32  `json:"nationality" binding:"required"`
-	Password      string `json:"password" binding:"required, min=6"`
-	Email         string `json:"email" binding:"required, email"`
+	Password      string `json:"password" binding:"required,min=6"`
+	BornAt        string `json:"born_at" binding:"required"`
+	Email         string `json:"email" binding:"required,email"`
 }
 
 type createOwnerResponse struct {
-	FirstName     string `json:"first_name"`
-	FirstSurname  string `json:"first_surname"`
-	SecondSurname string `json:"second_surname"`
-	Nationality   int32  `json:"nationality"`
-	Email         string `json:"email"`
+	FirstName     string    `json:"first_name"`
+	FirstSurname  string    `json:"first_surname"`
+	SecondSurname string    `json:"second_surname"`
+	Nationality   int32     `json:"nationality"`
+	Email         string    `json:"email"`
+	BornAt        time.Time `json:"born_at"`
 }
 
 func (server *Server) createOwner(ctx *gin.Context) {
@@ -33,6 +37,14 @@ func (server *Server) createOwner(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	date, err := time.Parse("2006-01-02", req.BornAt)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format"})
+		return
+	}
+
+	log.Println(date)
 
 	hash_pass, err := factory.HashPassword(req.Password)
 	if err != nil {
@@ -48,6 +60,7 @@ func (server *Server) createOwner(ctx *gin.Context) {
 		SecondSurname:  req.SecondSurname,
 		HashedPassword: hash_pass,
 		Nationality:    req.Nationality,
+		BornAt:         date,
 		Email:          req.Email,
 	}
 
@@ -71,6 +84,7 @@ func (server *Server) createOwner(ctx *gin.Context) {
 		SecondSurname: owner.SecondSurname,
 		Nationality:   owner.Nationality,
 		Email:         owner.Email,
+		BornAt:        owner.BornAt,
 	}
 
 	ctx.JSON(http.StatusOK, ownerResponse)
