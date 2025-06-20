@@ -1,6 +1,7 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -28,17 +29,34 @@ func (maker *JWTMaker) CreateToken(username string, duration time.Duration) (str
 		return "", err
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	return jwt.SignedString([]byte(maker.secretKey), token)
+	return token.SignedString([]byte(maker.secretKey))
+
 }
 
 // VerifyToken checks if the JWT token is valid and returns the payload if it is.
 func (maker *JWTMaker) VerifyToken(token string) (*Payload, error) {
-	payload, err := VerifyToken(token, maker.secretKey)
-	if err != nil {
-		return nil, err
+	funcioKey := func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, InvalidTokenError
+		}
+
+		return []byte(maker.secretKey), nil
 	}
-	if time.Now().After(payload.ExpiredAt) {
-		return nil, fmt.Errorf("token has expired")
+
+	jwtToken, err := jwt.ParseWithClaims(token, &Payload{}, funcioKey)
+
+	if err != nil {
+		// Check if the error is due to an expired token
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ExpiredTokenError
+		}
+		return nil, InvalidTokenError
+	}
+	payload, ok := jwtToken.Claims.(*Payload)
+	if !ok {
+		return nil, InvalidTokenError
 	}
 	return payload, nil
+
 }
