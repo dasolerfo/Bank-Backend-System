@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestJWTMaker(t *testing.T) {
-	// Create a new JWT maker
-	maker, err := NewJWTMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
+func TestPasetoV2Maker(t *testing.T) {
+	// Create a new Paseto maker
+	maker, err := NewPasetoMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
 	require.NoError(t, err)
 
 	// Test token creation and verification
@@ -38,9 +38,9 @@ func TestJWTMaker(t *testing.T) {
 	}
 }
 
-func TestExpiredJWTToken(t *testing.T) {
-	// Create a new JWT maker
-	maker, err := NewJWTMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
+func TestExpiredPasetoToken(t *testing.T) {
+	// Create a new Paseto maker
+	maker, err := NewPasetoMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
 	require.NoError(t, err)
 
 	// Test token creation with a short duration
@@ -58,9 +58,9 @@ func TestExpiredJWTToken(t *testing.T) {
 	require.EqualError(t, err, ExpiredTokenError.Error())
 }
 
-func TestInvalidJWTToken(t *testing.T) {
-	// Create a new JWT maker
-	maker, err := NewJWTMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
+func TestInvalidPasetoToken(t *testing.T) {
+	// Create a new Paseto maker
+	maker, err := NewPasetoMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
 	require.NoError(t, err)
 
 	// Test with an invalid token
@@ -72,9 +72,9 @@ func TestInvalidJWTToken(t *testing.T) {
 	require.EqualError(t, err, InvalidTokenError.Error())
 }
 
-func TestInvalidJWTAlgNoneToken(t *testing.T) {
+func TestInvalidPasetoAlgNoneToken(t *testing.T) {
 	// Create a new JWT maker
-	maker, err := NewJWTMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
+	maker, err := NewPasetoMaker(factory.RandomString(32)) // Ensure the key is at least 32 characters
 	require.NoError(t, err)
 
 	// Create a token with "none" algorithm
