@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	db "simplebank/db/model"
+	"simplebank/factory"
+	token "simplebank/token"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -9,19 +12,35 @@ import (
 )
 
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     factory.Config
+	tokenMaker token.Maker
+	store      db.Store
+	router     *gin.Engine
 }
 
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
-	router := gin.Default()
+func NewServer(config factory.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %v", err)
+	}
+	server := &Server{store: store,
+		tokenMaker: tokenMaker,
+		config:     config}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validateCurrency)
 	}
 
+	server.Router()
+	return server, nil
+}
+
+func (server *Server) Router() {
+
+	router := gin.Default()
+
 	router.POST("/owner", server.createOwner)
+	router.POST("/owner/login", server.loginOwner)
 
 	router.POST("/accounts", server.createAccount)
 	router.GET("/accounts/:id", server.getAccount)
@@ -30,7 +49,7 @@ func NewServer(store db.Store) *Server {
 	router.POST("/transfers", server.createTransferMoneyAPI)
 
 	server.router = router
-	return server
+
 }
 
 func (server *Server) Start(address string) error {

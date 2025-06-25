@@ -15,7 +15,7 @@ var (
 
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
-	Username  string    `json:"username"`
+	Email     string    `json:"email"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }
@@ -35,7 +35,7 @@ func (p *Payload) GetIssuer() (string, error) {
 	if p == nil {
 		return "", errors.New("payload is nil")
 	}
-	return p.Username, nil
+	return p.Email, nil
 }
 
 // GetNotBefore implements jwt.Claims.
@@ -58,9 +58,9 @@ func (p *Payload) GetSubject() (string, error) {
 
 }
 
-// NewPayload creates a new Payload with a unique ID, username, issued time, and expiration time.
+// NewPayload creates a new Payload with a unique ID, email, issued time, and expiration time.
 // It returns an error if the UUID generation fails.
-func NewPayload(username string, duration time.Duration) (*Payload, error) {
+func NewPayload(email string, duration time.Duration) (*Payload, error) {
 	id, err := uuid.NewUUID()
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func NewPayload(username string, duration time.Duration) (*Payload, error) {
 
 	payload := &Payload{
 		ID:        id,
-		Username:  username,
+		Email:     email,
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),
 	}
@@ -88,6 +88,6 @@ func (p *Payload) GetAudience() (jwt.ClaimStrings, error) {
 		return nil, errors.New("payload is nil")
 	}
 	audience := jwt.ClaimStrings{}
-	audience = append(audience, p.Username)
+	audience = append(audience, p.Email)
 	return audience, nil
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	db "simplebank/db/model"
@@ -21,13 +22,24 @@ type createOwnerRequest struct {
 	Email         string `json:"email" binding:"required,email"`
 }
 
-type createOwnerResponse struct {
+type ownerResponse struct {
 	FirstName     string    `json:"first_name"`
 	FirstSurname  string    `json:"first_surname"`
 	SecondSurname string    `json:"second_surname"`
 	Nationality   int32     `json:"nationality"`
 	Email         string    `json:"email"`
 	BornAt        time.Time `json:"born_at"`
+}
+
+func newUserResponse(owner db.Owner) ownerResponse {
+	return ownerResponse{
+		FirstName:     owner.FirstName,
+		FirstSurname:  owner.FirstSurname,
+		SecondSurname: owner.SecondSurname,
+		Nationality:   owner.Nationality,
+		Email:         owner.Email,
+		BornAt:        owner.BornAt,
+	}
 }
 
 func (server *Server) createOwner(ctx *gin.Context) {
@@ -78,14 +90,56 @@ func (server *Server) createOwner(ctx *gin.Context) {
 		return
 	}
 
-	ownerResponse := createOwnerResponse{
-		FirstName:     owner.FirstName,
-		FirstSurname:  owner.FirstSurname,
-		SecondSurname: owner.SecondSurname,
-		Nationality:   owner.Nationality,
-		Email:         owner.Email,
-		BornAt:        owner.BornAt,
+	ownerResponse := newUserResponse(owner)
+	ctx.JSON(http.StatusOK, ownerResponse)
+}
+
+type loginOwnerRequest struct {
+	Password string `json:"password" binding:"required,min=6"`
+	Email    string `json:"email" binding:"required,email"`
+}
+
+type loginOwnerResponse struct {
+	AccessToken string        `json:"access_token"`
+	Owner       ownerResponse `json:"owner"`
+}
+
+func (server *Server) loginOwner(ctx *gin.Context) {
+	var req loginOwnerRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
-	ctx.JSON(http.StatusOK, ownerResponse)
+	owner, err := server.store.GetOwnerByEmail(ctx, req.Email)
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = factory.CheckPassword(req.Password, owner.HashedPassword)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	accessToken, err := server.tokenMaker.CreateToken(owner.Email, server.config.TokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	response := loginOwnerResponse{
+		AccessToken: accessToken,
+		Owner:       newUserResponse(owner),
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }

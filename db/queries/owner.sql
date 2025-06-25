@@ -14,3 +14,7 @@ INSERT INTO owners (
 -- name: GetOwner :one
 SELECT * FROM owners
 WHERE id = $1 LIMIT 1;
+
+-- name: GetOwnerByEmail :one
+SELECT * FROM owners
+WHERE email = $1 LIMIT 1;

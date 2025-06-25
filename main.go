@@ -21,7 +21,11 @@ func main() {
 	}
 
 	store := db.NewStore(testDB)
-	router := api.NewServer(store)
+	router, err := api.NewServer(config, store)
+
+	if err != nil {
+		log.Fatal("No es pot inicialitzar el server: ", err)
+	}
 
 	err = router.Start(config.ServerAddress)
 	if err != nil {

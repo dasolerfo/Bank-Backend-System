@@ -22,9 +22,9 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 	return &JWTMaker{secretKey: secretKey}, nil
 }
 
-// CreateToken creates a new JWT token for the given username and duration.
-func (maker *JWTMaker) CreateToken(username string, duration time.Duration) (string, error) {
-	payload, err := NewPayload(username, duration)
+// CreateToken creates a new JWT token for the given email and duration.
+func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string, error) {
+	payload, err := NewPayload(email, duration)
 	if err != nil {
 		return "", err
 	}

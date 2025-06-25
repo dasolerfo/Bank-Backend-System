@@ -190,6 +190,21 @@ func (mr *MockStoreMockRecorder) GetOwner(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwner", reflect.TypeOf((*MockStore)(nil).GetOwner), ctx, id)
 }
 
+// GetOwnerByEmail mocks base method.
+func (m *MockStore) GetOwnerByEmail(ctx context.Context, email string) (db.Owner, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOwnerByEmail", ctx, email)
+	ret0, _ := ret[0].(db.Owner)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOwnerByEmail indicates an expected call of GetOwnerByEmail.
+func (mr *MockStoreMockRecorder) GetOwnerByEmail(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOwnerByEmail", reflect.TypeOf((*MockStore)(nil).GetOwnerByEmail), ctx, email)
+}
+
 // GetTranfer mocks base method.
 func (m *MockStore) GetTranfer(ctx context.Context, id int64) (db.Transfer, error) {
 	m.ctrl.T.Helper()

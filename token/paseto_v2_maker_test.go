@@ -15,13 +15,13 @@ func TestPasetoV2Maker(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test token creation and verification
-	username := factory.RandomString(32)
+	email := factory.RandomString(32)
 	duration := time.Minute
 
 	issuedAt := time.Now()
 	expiredAt := issuedAt.Add(duration)
 
-	token, err := maker.CreateToken(username, duration)
+	token, err := maker.CreateToken(email, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 
@@ -29,12 +29,12 @@ func TestPasetoV2Maker(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, payload)
 	require.NotZero(t, payload.ID)
-	require.Equal(t, username, payload.Username)
+	require.Equal(t, email, payload.Email)
 	require.WithinDuration(t, issuedAt, payload.IssuedAt, time.Second)
 	require.WithinDuration(t, expiredAt, payload.ExpiredAt, time.Second)
 
-	if payload.Username != username {
-		t.Errorf("Expected username %s, got %s", username, payload.Username)
+	if payload.Email != email {
+		t.Errorf("Expected email %s, got %s", email, payload.Email)
 	}
 }
 
@@ -44,10 +44,10 @@ func TestExpiredPasetoToken(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test token creation with a short duration
-	username := factory.RandomString(32)
+	email := factory.RandomString(32)
 	duration := -time.Minute // Negative duration to simulate expiration
 
-	token, err := maker.CreateToken(username, duration)
+	token, err := maker.CreateToken(email, duration)
 	require.NoError(t, err)
 	require.NotEmpty(t, token)
 
