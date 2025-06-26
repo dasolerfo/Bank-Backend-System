@@ -12,19 +12,22 @@ import (
 )
 
 func createRandomEntry(t *testing.T) Entry {
-	arg := ListAccountParams{
-		Limit:  5,
-		Offset: 5,
-	}
 
-	accounts, _ := testQueries.ListAccount(context.Background(), arg)
+	owner := createRandomOwner(t)
+	account, err := testQueries.CreateAccount(context.Background(), CreateAccountParams{
+		Currency:    Currency(factory.RandomCurreny()),
+		OwnerID:     owner.ID,
+		Money:       factory.RandomMoney(),
+		CountryCode: 32,
+	})
 
 	/*maxId := slices.MaxFunc(accounts, func(i Account, c Account) int {
 		return cmp.Compare(i.ID, c.ID)
 	})*/
 
 	args := CreateEntriesParams{
-		AccountID: (accounts[factory.RandomInt(0, int64(len(accounts))-1)].ID),
+		//AccountID: (accounts[factory.RandomInt(0, int64(len(accounts))-1)].ID),
+		AccountID: account.ID,
 		Amount:    factory.RandomMoney(),
 	}
 
@@ -74,19 +77,15 @@ func TestGetEntry(t *testing.T) {
 }
 
 func TestListEntries(t *testing.T) {
-	argA := ListAccountParams{
-		Limit:  1,
-		Offset: 0,
-	}
 
-	account, _ := testQueries.ListAccount(context.Background(), argA)
+	account := createRandomAccount(t)
 
 	for i := 0; i < 10; i++ {
-		createRandomEntryAccount(t, int(account[0].ID))
+		createRandomEntryAccount(t, int(account.ID))
 	}
 
 	arg := ListEntriesParams{
-		AccountID: account[0].ID,
+		AccountID: account.ID,
 		Limit:     5,
 		Offset:    5,
 	}
