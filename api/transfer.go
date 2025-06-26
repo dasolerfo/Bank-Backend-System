@@ -1,8 +1,11 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	db "simplebank/db/model"
+	token "simplebank/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,7 +42,23 @@ func (s *Server) createTransferMoneyAPI(ctx *gin.Context) {
 		return
 	}
 
-	_, val = s.validateAccounts(ctx, req.Currency, req.FromAccountID)
+	authPayload := ctx.MustGet(authorizationKey).(*token.Payload)
+	owner, err := s.store.GetOwnerByEmail(ctx, authPayload.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if fromAccount.OwnerID != owner.ID {
+		ctx.JSON(http.StatusForbidden, errorResponse((errors.New("error: you can't transfer money from an account is not yours"))))
+		return
+	}
+
+	_, val = s.validateAccounts(ctx, req.Currency, req.ToAccountID)
 	if !val {
 		return
 	}

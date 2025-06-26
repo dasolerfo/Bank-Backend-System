@@ -2,8 +2,10 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	db "simplebank/db/model"
+	token "simplebank/token"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -14,7 +16,6 @@ import (
 // CERCAR A GO-PLAYGROUND/VALIDATOR
 
 type createAccountRequest struct {
-	OwnerID     int64       `json:"owner_id" binding:"required"`
 	Currency    db.Currency `json:"currency" binding:"required,currency"`
 	CountryCode int32       `json:"country_code" binding:"required"`
 }
@@ -27,8 +28,21 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	owner, err := server.store.GetOwnerByEmail(ctx, authPayload.Email)
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	arg := db.CreateAccountParams{
-		OwnerID:     req.OwnerID,
+		OwnerID:     owner.ID,
 		Currency:    req.Currency,
 		CountryCode: req.CountryCode,
 		Money:       0,
@@ -74,6 +88,25 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	owner, err := server.store.GetOwnerByEmail(ctx, authPayload.Email)
+	if err != nil {
+
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	if account.OwnerID != owner.ID {
+		err := errors.New("the account does not belong to the owner")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+
+	}
+
 	ctx.JSON(http.StatusOK, account)
 
 }
@@ -91,9 +124,21 @@ func (server *Server) ListAccount(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationKey).(*token.Payload)
+	owner, err := server.store.GetOwnerByEmail(ctx, authPayload.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	arg := db.ListAccountParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		OwnerID: owner.ID,
+		Limit:   req.PageSize,
+		Offset:  (req.PageID - 1) * req.PageSize,
 	}
 	accounts, err := server.store.ListAccount(ctx, arg)
 
