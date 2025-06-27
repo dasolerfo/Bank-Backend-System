@@ -124,7 +124,8 @@ func (server *Server) ListAccount(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(authorizationKey).(*token.Payload)
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	owner, err := server.store.GetOwnerByEmail(ctx, authPayload.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
