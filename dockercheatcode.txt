@@ -1,0 +1,26 @@
+## Aquesta comanda ens serveix per construïr el contenidor fer us del docker file del projecte
+docker build -t simplebank:latest .
+
+## Aquesta comanda ens serveix per correr el contenidor en mode debug
+docker run --name simplebank -p 8080:8080 simplebank:latest
+
+## Per fer deploy del contenidor en mode produccio
+docker run --name simplebank -e GIN_MODE=release  -p 8080:8080 simplebank:latest
+
+## Per veure la configuració dels contenidors de Docker fem servir:
+docker container inspect simplebank
+
+## Per fer deploy del contenidor en mode produccio i que es pugui connectar a la base de dades
+docker run --name simplebank -e GIN_MODE=release -e DB_SOURCE="postgresql://root:Songoku13@172.17.0.2:5432/simple_bank?sslmode=disable" -p 8080:8080 simplebank:latest
+
+
+## Per a poder fer una vinculació automàtica dins dels nostres contenidors de doker, haurem de crear les nostres networks
+docker network create nom
+docker network inspect
+docker network connect
+docker network connect bank-network postgres12
+
+
+## Amb aquesta comanda connectarem el nostre contenidor a la nova network que acabem de crear per tal de que s'entenguin de primeres
+docker run --name simplebank -e GIN_MODE=release -e DB_SOURCE="postgresql://root:Songoku13@postgres12:5432/simple_bank?sslmode=disable" -p 8080:8080
+ --network bank-network  simplebank:latest
