@@ -7,3 +7,4 @@ For developing this project, I used some open source libraries that helped me to
 - go/SQLC: Generate the go functions for connecting to the DB
 - gin: Framework for the development of the web application in Go
 - mockgen: Sets up a Mock DB for testing the API Endpoints
+- jq: Per a saber llegir i interpretar el els secrets d'AWS en format JSON

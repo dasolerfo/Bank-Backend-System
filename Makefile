@@ -15,6 +15,13 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:Songoku13@localhost:5432/simple_bank?sslmode=disable" -verbose down
 
+migrateupremote:
+	migrate -path db/migration -database "postgresql://root:5KmWKrX7oKF7rEUckJwK@bank-system.cfg8weceu069.eu-west-3.rds.amazonaws.com:5432/bank_system" -verbose up
+
+migratedownremote:
+	migrate -path db/migration -database "postgresql://root:5KmWKrX7oKF7rEUckJwK@bank-system.cfg8weceu069.eu-west-3.rds.amazonaws.com:5432/bank_system" -verbose down
+
+
 migrateup1:
 	migrate -path db/migration -database "postgresql://root:Songoku13@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
 
@@ -37,6 +44,6 @@ serve:
 	go run main.go
 	
 	
-.PHONY: createdb startDB dropdb postgres migrateup migratedown sqlc test serve upgradesqlc
+.PHONY: createdb startDB dropdb postgres migrateup migratedown sqlc test serve upgradesqlc migrateupremote migratedownremote migrateup1 migratedown1 mockgen
 
 
