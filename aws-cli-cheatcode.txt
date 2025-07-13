@@ -1,0 +1,19 @@
+
+## Afegirem el nou contexte a la base de dades de kube/config
+aws eks update-kubeconfig --name bank-system --region eu-west-3
+
+## Mirem tetes les configuracions els klusters disponibles
+ls -l ~/.kube
+
+## Per podernos connectar al kluster al cual li especifiquem el context
+kubectl config use-context (...arn del cluster) 
+
+## Un cop ens hem connectat al kluster podem veure la seva info (i si ens hem connectat fent servir la seg¨¨uent comanda)
+kubectl cluster-info
+
+## Veurem els clusters operatius
+kubectl get service
+
+## Veure els pods operatius
+kubectl get pods
+
