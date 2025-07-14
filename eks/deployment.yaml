@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-system-api-deployment
+  labels:
+    app: bank-system-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bank-system-api
+  template:
+    metadata:
+      labels:
+        app: bank-system-api
+    spec:
+      containers:
+      - name: bank-system-api
+        image: 356062354528.dkr.ecr.eu-west-3.amazonaws.com/banksystem:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
