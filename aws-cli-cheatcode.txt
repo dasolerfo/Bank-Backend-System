@@ -17,3 +17,6 @@ kubectl get service
 ## Veure els pods operatius
 kubectl get pods
 
+## Aplicar un fitxer yaml amb la ruta especificada amb el paràmetre -f  (pot ser de qualsevol tipus)
+kubectl apply -f eks/deployment.yaml
+
