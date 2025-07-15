@@ -45,11 +45,21 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY   
 
+    - name: Debug AWS and kube config
+      run: |
+        echo "🧾 AWS ENV:"
+        env | grep AWS
+        echo
+        echo "📂 .aws directory:"
+        ls -la ~/.aws || echo "No ~/.aws directory"
+        echo
+        echo "📂 .kube directory:"
+        ls -la ~/.kube || echo "No ~/.kube directory"
+        echo
+        echo "✅ AWS CLI identity:"
+        aws sts get-caller-identity      
     - name: Update kubectl context
       run: |
-          cat ~/.aws/credentials
-          cat ~/.aws/config
-          cat ~/.kube/config
           aws eks update-kubeconfig --region eu-west-3 --name bank-system     
     - name: Deploy image to EKS
       run: |
