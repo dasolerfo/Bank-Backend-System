@@ -47,12 +47,13 @@ jobs:
 
     - name: Update kubectl context
       run: |
-          export AWS_PROFILE=default
+          cat ~/.aws/credentials
+          cat ~/.aws/config
+          cat ~/.kube/config
           aws eks update-kubeconfig --region eu-west-3 --name bank-system     
     - name: Deploy image to EKS
       run: |
           kubectl apply -f eks/aws-auth.yaml
-          export AWS_PROFILE=ci-github
           kubectl apply -f eks/deployment.yaml   
           kubectl apply -f eks/service.yaml
           kubectl apply -f eks/ingress.yaml     
