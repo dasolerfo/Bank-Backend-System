@@ -60,7 +60,7 @@ jobs:
         aws sts get-caller-identity      
     - name: Update kubectl context
       run: |
-          aws eks update-kubeconfig --region eu-west-3 --name bank-system     
+          aws eks update-kubeconfig --region eu-west-3 --name bank-system --profile ci-github  
     - name: Deploy image to EKS
       run: |
           kubectl apply -f eks/aws-auth.yaml
