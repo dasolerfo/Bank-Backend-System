@@ -2,13 +2,10 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
 name: Deploy to production
-
 on:
   push:
-    branches: [ "master" ]
-  
+    branches: [ "master"]
 jobs:
-
   deploy:
     name: Build image
     runs-on: ubuntu-latest
@@ -48,9 +45,22 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push -a $REGISTRY/$REPOSITORY   
 
+    - name: Debug AWS and kube config
+      run: |
+        echo "🧾 AWS ENV:"
+        env | grep AWS
+        echo
+        echo "📂 .aws directory:"
+        ls -la ~/.aws || echo "No ~/.aws directory"
+        echo
+        echo "📂 .kube directory:"
+        ls -la ~/.kube || echo "No ~/.kube directory"
+        echo
+        echo "✅ AWS CLI identity:"
+        aws sts get-caller-identity      
     - name: Update kubectl context
       run: |
-          aws eks update-kubeconfig --region eu-west-3 --name bank-system     
+          aws eks update-kubeconfig --region eu-west-3 --name bank-system   
     - name: Deploy image to EKS
       run: |
           kubectl apply -f eks/aws-auth.yaml
