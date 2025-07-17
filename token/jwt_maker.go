@@ -23,13 +23,14 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 }
 
 // CreateToken creates a new JWT token for the given email and duration.
-func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string, error) {
+func (maker *JWTMaker) CreateToken(email string, duration time.Duration) (string, *Payload, error) {
 	payload, err := NewPayload(email, duration)
 	if err != nil {
-		return "", err
+		return "", payload, err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	return token.SignedString([]byte(maker.secretKey))
+	jwttoken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	token, err := jwttoken.SignedString([]byte(maker.secretKey))
+	return token, payload, err
 
 }
 

@@ -46,6 +46,10 @@ func TestCreateOwner(t *testing.T) {
 					CreateOwner(gomock.Any(), gomock.AssignableToTypeOf(db.CreateOwnerParams{})).
 					Times(1).
 					Return(owner, nil)
+				store.EXPECT().
+					CreateSession(gomock.Any(), gomock.Any()).
+					Times(0)
+
 			},
 			createBody: func(owner *db.Owner) map[string]interface{} {
 				return map[string]interface{}{

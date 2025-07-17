@@ -35,7 +35,6 @@ jobs:
     - name: Load secrets from AWS Secrets Manager and load them into the environment
       run: aws secretsmanager get-secret-value --secret-id bank_system --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
 
-
     - name: Build, tag, and push docker image to Amazon ECR
       env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -43,21 +42,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
       run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
-          docker push -a $REGISTRY/$REPOSITORY   
-
-    - name: Debug AWS and kube config
-      run: |
-        echo "🧾 AWS ENV:"
-        env | grep AWS
-        echo
-        echo "📂 .aws directory:"
-        ls -la ~/.aws || echo "No ~/.aws directory"
-        echo
-        echo "📂 .kube directory:"
-        ls -la ~/.kube || echo "No ~/.kube directory"
-        echo
-        echo "✅ AWS CLI identity:"
-        aws sts get-caller-identity      
+          docker push -a $REGISTRY/$REPOSITORY       
     - name: Update kubectl context
       run: |
           aws eks update-kubeconfig --region eu-west-3 --name bank-system   

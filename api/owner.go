@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -100,8 +101,12 @@ type loginOwnerRequest struct {
 }
 
 type loginOwnerResponse struct {
-	AccessToken string        `json:"access_token"`
-	Owner       ownerResponse `json:"owner"`
+	SessionID       uuid.UUID     `json:"session_id"`
+	AccessToken     string        `json:"access_token"`
+	AccessTokenExp  time.Time     `json:"access_token_exp"`
+	RefreshToken    string        `json:"refresh_token"`
+	RefreshTokenExp time.Time     `json:"refresh_token_exp"`
+	Owner           ownerResponse `json:"owner"`
 }
 
 func (server *Server) loginOwner(ctx *gin.Context) {
@@ -130,15 +135,42 @@ func (server *Server) loginOwner(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, err := server.tokenMaker.CreateToken(owner.Email, server.config.TokenDuration)
+	accessToken, accesspayload, err := server.tokenMaker.CreateToken(owner.Email, server.config.TokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	refreshToken, refreshpayload, err := server.tokenMaker.CreateToken(owner.Email, server.config.RefreshTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	sessionParams := db.CreateSessionParams{
+		ID:           refreshpayload.ID,
+		OwnerID:      owner.ID,
+		Email:        owner.Email,
+		RefreshToken: refreshToken,
+		ClientIp:     ctx.ClientIP(),
+		UserAgent:    ctx.Request.UserAgent(),
+		IsBlocked:    false,
+		ExpiresAt:    refreshpayload.ExpiredAt,
+	}
+
+	session, err := server.store.CreateSession(ctx, sessionParams)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	response := loginOwnerResponse{
-		AccessToken: accessToken,
-		Owner:       newUserResponse(owner),
+		SessionID:       session.ID,
+		AccessToken:     accessToken,
+		AccessTokenExp:  accesspayload.ExpiredAt,
+		RefreshToken:    refreshToken,
+		RefreshTokenExp: refreshpayload.ExpiredAt,
+		Owner:           newUserResponse(owner),
 	}
 
 	ctx.JSON(http.StatusOK, response)
