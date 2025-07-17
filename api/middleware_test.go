@@ -13,8 +13,9 @@ import (
 )
 
 func addAuth(t *testing.T, request *http.Request, tokenMaker token.Maker, authType string, email string, duration time.Duration) {
-	token, err := tokenMaker.CreateToken(email, duration)
+	token, payloade, err := tokenMaker.CreateToken(email, duration)
 	require.NoError(t, err)
+	require.NotEmpty(t, payloade)
 
 	authorizationHeader := fmt.Sprintf("%s %s", authType, token)
 	request.Header.Set("Authorization", authorizationHeader)

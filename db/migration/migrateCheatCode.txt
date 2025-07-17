@@ -1,0 +1,2 @@
+## Crear un nou fitxer de migracions
+migrate create -ext sql -dir <nom del directori> -seq <nom de la migracio>
