@@ -1,0 +1,91 @@
+Project "mini-Revolut" {
+  name: "mini-Revolut"
+  description: "A simple bank backend system with REST API, JWT and PASETO authentication, and database operations."
+  version: "1.0.0"
+  Note: '''
+    # mini-Revolut Database Schema
+    This schema defines the structure of the mini-Revolut database, including tables for owners, accounts, entries, transfers, and sessions.
+  '''
+}
+
+Enum "Currency" {
+  USD
+  EUR
+  KRW
+  JPY
+}
+
+Table "owners" {
+  "id" BIGINT [pk]
+  "first_name" VARCHAR [not null]
+  "first_surname" VARCHAR [not null]
+  "second_surname" VARCHAR [not null]
+  "born_at" DATE [not null]
+  "nationality" INT [not null]
+  "hashed_password" VARCHAR [not null, default: '12345678']
+  "email" VARCHAR [not null, unique]
+  "created_at" TIMESTAMPTZ [not null, default: `NOW()`]
+  "password_changed_at" TIMESTAMPTZ [not null, default: '0001-01-01 00:00:00Z']
+}
+
+Table "accounts" {
+  "id" BIGINT [pk]
+  "owner_id" BIGINT [not null]
+  "currency" Currency [not null]
+  "created_at" TIMESTAMPTZ [default: `NOW()`]
+  "money" FLOAT [not null]
+  "country_code" INT [not null]
+
+  Indexes {
+    owner_id
+  }
+
+  Note: 'UNIQUE (owner_id, currency) constraint'
+}
+
+Table "entries" {
+  "id" BIGINT [pk]
+  "account_id" BIGINT
+  "amount" FLOAT [not null, note: 'Can be negative or positive']
+  "created_at" TIMESTAMPTZ [default: `NOW()`]
+
+  Indexes {
+    account_id
+  }
+}
+
+Table "transfers" {
+  "id" BIGINT [pk]
+  "from_account_id" BIGINT [not null]
+  "to_account_id" BIGINT [not null]
+  "amount" FLOAT [not null, note: 'Must be positive']
+  "created_at" TIMESTAMPTZ [default: `NOW()`]
+
+  Indexes {
+    from_account_id
+    to_account_id
+    (from_account_id, to_account_id)
+  }
+}
+
+Table "sessions" {
+  "id" UUID [pk]
+  "owner_id" BIGINT [not null]
+  "email" VARCHAR [not null]
+  "refresh_token" VARCHAR [not null]
+  "user_agent" VARCHAR [not null]
+  "client_ip" VARCHAR [not null]
+  "is_blocked" BOOLEAN [not null, default: false]
+  "created_at" TIMESTAMPTZ [not null, default: `NOW()`]
+  "expires_at" TIMESTAMPTZ [not null]
+}
+
+Ref "fk_owner":"owners"."id" < "accounts"."owner_id" [delete: cascade]
+
+Ref "fk_account":"accounts"."id" < "entries"."account_id" [delete: cascade]
+
+Ref "fk_from_account":"accounts"."id" < "transfers"."from_account_id" [delete: cascade]
+
+Ref "fk_to_account":"accounts"."id" < "transfers"."to_account_id" [delete: cascade]
+
+Ref "fk_session_owner":"owners"."id" < "sessions"."owner_id" [delete: cascade]
