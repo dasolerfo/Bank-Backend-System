@@ -1,0 +1,5 @@
+ dbml2sql --postgres -o docs/schema.sql docs/db.dbml
+
+ dbdocs password --set Songoku13 --project mini-Revolut
+
+ dbdocs build docs/db.dbml
